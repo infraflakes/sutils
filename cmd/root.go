@@ -15,14 +15,12 @@ var rootCmd = &cobra.Command{
 	Short: "Sane Utils — a suite of CLI utilities",
 	Long:  `Sane Utils is an opinionated CLI suite to streamline many command line work.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
+		_ = cmd.Help()
 	},
 }
 
 func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		// cobra already prints the error
-	}
+	_ = rootCmd.Execute()
 }
 
 func init() {

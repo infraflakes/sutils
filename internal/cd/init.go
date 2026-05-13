@@ -15,7 +15,7 @@ func GenerateInit(shellName string) (string, error) {
 end`), nil
 
 	case "zsh":
-		return fmt.Sprintf(`scd() {
+		return `scd() {
     local target
     target=$(sn cd "$@")
     if [ $? -eq 0 ] && [ -d "$target" ]; then
@@ -23,10 +23,10 @@ end`), nil
     else
         [ -n "$target" ] && echo "$target"
     fi
-}`), nil
+}`, nil
 
 	case "bash":
-		return fmt.Sprintf(`scd() {
+		return `scd() {
     local target
     target=$(sn cd "$@")
     if [ $? -eq 0 ] && [ -d "$target" ] ; then
@@ -34,7 +34,7 @@ end`), nil
     else
         [ -n "$target" ] && echo "$target"
     fi
-}`), nil
+}`, nil
 
 	default:
 		return "", fmt.Errorf("unsupported shell: %s. Supported shells: fish, bash, zsh", shellName)

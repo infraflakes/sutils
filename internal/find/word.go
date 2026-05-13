@@ -9,12 +9,11 @@ import (
 )
 
 var WordCmd = &cobra.Command{
-	Use:   "word <path> <terms...>",
+	Use:   "word <terms...> [path]",
 	Short: "Search for words inside files",
-	Args:  cobra.MinimumNArgs(2),
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		path := args[0]
-		terms := args[1:]
+		terms, path := parseTermsPath(args)
 
 		for _, term := range terms {
 			fmt.Printf("Searching for '%s' in %s\n", term, path)
@@ -31,12 +30,11 @@ var WordCmd = &cobra.Command{
 }
 
 var WordDeleteCmd = &cobra.Command{
-	Use:   "delete <path> <terms...>",
+	Use:   "delete <terms...> [path]",
 	Short: "Delete files containing matching words",
-	Args:  cobra.MinimumNArgs(2),
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		path := args[0]
-		terms := args[1:]
+		terms, path := parseTermsPath(args)
 
 		for _, term := range terms {
 			fmt.Printf("Searching for '%s' in %s\n", term, path)

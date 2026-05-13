@@ -8,6 +8,13 @@ import (
 	"github.com/infraflakes/sutils/internal/helper/exec"
 )
 
+func parseTermsPath(args []string) (terms []string, path string) {
+	if len(args) == 1 {
+		return args, "."
+	}
+	return args[:len(args)-1], args[len(args)-1]
+}
+
 func DeletePath(path string, isDir bool) {
 	var err error
 	if isDir {

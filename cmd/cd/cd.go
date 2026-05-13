@@ -45,7 +45,7 @@ var aliasCmd = &cobra.Command{
 	Short: "Manage directory aliases",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
+		_ = cmd.Help()
 	},
 }
 

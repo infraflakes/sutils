@@ -5,23 +5,21 @@ import (
 )
 
 var DirCmd = &cobra.Command{
-	Use:   "dir <path> <terms...>",
+	Use:   "dir <terms...> [path]",
 	Short: "Search for directories by name",
-	Args:  cobra.MinimumNArgs(2),
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		path := args[0]
-		terms := args[1:]
+		terms, path := parseTermsPath(args)
 		FindAndProcess(path, terms, "d", "Searching for directories with '%s' in %s\n", "Delete matched directories? (y/N): ", false)
 	},
 }
 
 var DirDeleteCmd = &cobra.Command{
-	Use:   "delete <path> <terms...>",
+	Use:   "delete <terms...> [path]",
 	Short: "Delete directories by name",
-	Args:  cobra.MinimumNArgs(2),
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		path := args[0]
-		terms := args[1:]
+		terms, path := parseTermsPath(args)
 		FindAndProcess(path, terms, "d", "Searching for directories with '%s' in %s\n", "Delete matched directories? (y/N): ", true)
 	},
 }

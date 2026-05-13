@@ -45,10 +45,7 @@ func (m *model) View() string {
 	}
 	status := BrightStyle.Render(fmt.Sprintf("%d/%d%s%s ", m.selectedIdx+1, len(m.currentEntries), fileStatus, dotStatus))
 
-	gapWidth := m.width - lipgloss.Width(help) - lipgloss.Width(status)
-	if gapWidth < 0 {
-		gapWidth = 0
-	}
+	gapWidth := max(m.width-lipgloss.Width(help)-lipgloss.Width(status), 0)
 	gap := lipgloss.NewStyle().Width(gapWidth).Render("")
 
 	footer := "\n" + lipgloss.JoinHorizontal(lipgloss.Top, help, gap, status)
@@ -57,7 +54,7 @@ func (m *model) View() string {
 }
 
 func (m *model) renderColumn(entries []entry, selectedIdx int, isActive bool, width int) string {
-	var s string
+	var s strings.Builder
 	height := m.height - 4
 
 	start := 0
@@ -74,18 +71,15 @@ func (m *model) renderColumn(entries []entry, selectedIdx int, isActive bool, wi
 
 		if i == selectedIdx && isActive {
 			displayName := m.highlightMatchInSelected(name)
-			padding := width - lipgloss.Width(" "+name)
-			if padding < 0 {
-				padding = 0
-			}
-			s += SelectedStyle.Render(" "+displayName+strings.Repeat(" ", padding)) + "\n"
+			padding := max(width-lipgloss.Width(" "+name), 0)
+			s.WriteString(SelectedStyle.Render(" "+displayName+strings.Repeat(" ", padding)) + "\n")
 		} else if i == selectedIdx && !isActive {
-			s += DimStyle.Render("  "+m.highlightMatch(name)) + "\n"
+			s.WriteString(DimStyle.Render("  "+m.highlightMatch(name)) + "\n")
 		} else {
-			s += "  " + m.highlightMatch(name) + "\n"
+			s.WriteString("  " + m.highlightMatch(name) + "\n")
 		}
 	}
-	return s
+	return s.String()
 }
 
 func (m *model) highlightMatchInSelected(name string) string {

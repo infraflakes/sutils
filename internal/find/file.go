@@ -5,23 +5,21 @@ import (
 )
 
 var FileCmd = &cobra.Command{
-	Use:   "file <path> <terms...>",
+	Use:   "file <terms...> [path]",
 	Short: "Search for files by name",
-	Args:  cobra.MinimumNArgs(2),
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		path := args[0]
-		terms := args[1:]
+		terms, path := parseTermsPath(args)
 		FindAndProcess(path, terms, "f", "Searching for files with '%s' in %s\n", "Delete matched files? (y/N): ", false)
 	},
 }
 
 var FileDeleteCmd = &cobra.Command{
-	Use:   "delete <path> <terms...>",
+	Use:   "delete <terms...> [path]",
 	Short: "Delete files by name",
-	Args:  cobra.MinimumNArgs(2),
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		path := args[0]
-		terms := args[1:]
+		terms, path := parseTermsPath(args)
 		FindAndProcess(path, terms, "f", "Searching for files with '%s' in %s\n", "Delete matched files? (y/N): ", true)
 	},
 }

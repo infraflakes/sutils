@@ -222,10 +222,7 @@ func (m Model) RenderKanbanView() string {
 		separatorWidth = 3
 	)
 
-	numVisibleCols := m.WindowWidth / (fixedColWidth + separatorWidth)
-	if numVisibleCols < 1 {
-		numVisibleCols = 1
-	}
+	numVisibleCols := max(m.WindowWidth/(fixedColWidth+separatorWidth), 1)
 
 	if m.KanbanScrollX > len(m.Contexts)-numVisibleCols {
 		m.KanbanScrollX = max(0, len(m.Contexts)-numVisibleCols)
@@ -314,8 +311,8 @@ func (m Model) RenderStatsView() string {
 		completionRate = float64(completed) / float64(total) * 100
 	}
 
-	content.WriteString(fmt.Sprintf("Total Tasks: %d\n", total))
-	content.WriteString(fmt.Sprintf("Completed: %d (%.1f%%)\n\n", completed, completionRate))
+	fmt.Fprintf(&content, "Total Tasks: %d\n", total)
+	fmt.Fprintf(&content, "Completed: %d (%.1f%%)\n\n", completed, completionRate)
 
 	content.WriteString("Context Statistics:\n")
 	for _, context := range m.Contexts {
@@ -333,8 +330,8 @@ func (m Model) RenderStatsView() string {
 			ctxRate = float64(ctxCompleted) / float64(ctxTotal) * 100
 		}
 
-		content.WriteString(fmt.Sprintf("  %s: %d/%d (%.1f%%)\n",
-			contextStyle.Render(context), ctxCompleted, ctxTotal, ctxRate))
+		fmt.Fprintf(&content, "  %s: %d/%d (%.1f%%)\n",
+			contextStyle.Render(context), ctxCompleted, ctxTotal, ctxRate)
 	}
 
 	return baseStyle.Render(content.String())
