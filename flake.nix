@@ -26,7 +26,7 @@
             preBuild = ''
               export CGO_ENABLED=0
             '';
-            vendorHash = "sha256-gJhMKUmy/wwlQ9uiiab74hdl5O5w5B/O3k6RuQMPDbo=";
+            vendorHash = "sha256-G/kRteKbu1TsvEYAvAGBRMLhYLUEY4ham/PV9eJKvLs=";
             ldflags = [
               "-s"
               "-w"
@@ -36,11 +36,11 @@
             postInstall = ''
               mv $out/bin/sutils $out/bin/sn
             '';
-            # postFixup = ''
-            #   installShellCompletion --fish ${src}/completions/sn.fish
-            #   installShellCompletion --zsh ${src}/completions/sn.zsh
-            #   installShellCompletion --bash ${src}/completions/sn.bash
-            # '';
+            postFixup = ''
+              installShellCompletion --fish ${src}/completions/sn.fish
+              installShellCompletion --zsh ${src}/completions/sn.zsh
+              installShellCompletion --bash ${src}/completions/sn.bash
+            '';
           };
 
         cleanedSource = pkgs.lib.cleanSourceWith {
