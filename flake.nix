@@ -1,5 +1,5 @@
 {
-  description = "Serein is an opinionated CLI suite to streamline many command line work.";
+  description = "Sane Utils is an opinionated CLI suite to streamline many command line work.";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -16,12 +16,12 @@
       system: let
         pkgs = nixpkgs.legacyPackages.${system};
 
-        buildSrn = {
+        buildSutils = {
           src,
           version,
         }:
           pkgs.buildGoModule {
-            pname = "srn";
+            pname = "sutils";
             inherit version src;
             preBuild = ''
               export CGO_ENABLED=0
@@ -34,13 +34,13 @@
             ];
             nativeBuildInputs = [pkgs.installShellFiles];
             postInstall = ''
-              mv $out/bin/srn-coreutils $out/bin/srn
+              mv $out/bin/sutils $out/bin/sn
             '';
-            postFixup = ''
-              installShellCompletion --fish ${src}/completions/srn.fish
-              installShellCompletion --zsh ${src}/completions/srn.zsh
-              installShellCompletion --bash ${src}/completions/srn.bash
-            '';
+            # postFixup = ''
+            #   installShellCompletion --fish ${src}/completions/sn.fish
+            #   installShellCompletion --zsh ${src}/completions/sn.zsh
+            #   installShellCompletion --bash ${src}/completions/sn.bash
+            # '';
           };
 
         cleanedSource = pkgs.lib.cleanSourceWith {
@@ -60,7 +60,7 @@
           ];
         };
 
-        packages.default = buildSrn {
+        packages.default = buildSutils {
           src = cleanedSource;
           version = let
             versionFile = "${cleanedSource}/.version";

@@ -1,24 +1,35 @@
 package cmd
 
 import (
-	"github.com/infraflakes/srn-libs/exec"
-	"github.com/infraflakes/srn-libs/utils"
+	"github.com/infraflakes/sutils/cmd/cd"
+	"github.com/infraflakes/sutils/cmd/find"
+	"github.com/infraflakes/sutils/cmd/music"
+	"github.com/infraflakes/sutils/cmd/todo"
+	"github.com/infraflakes/sutils/cmd/zip"
+	"github.com/infraflakes/sutils/internal/helper/exec"
 	"github.com/spf13/cobra"
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "srn",
-	Short: "Serein Coreutils is a suite for your cli.",
-	Long:  `Serein Coreutils is a suite that supercharge your cli workflow.`,
+	Use:   "sn",
+	Short: "Sane Utils — a suite of CLI utilities",
+	Long:  `Sane Utils is an opinionated CLI suite to streamline many command line work.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		utils.CheckErr(cmd.Help())
+		cmd.Help()
 	},
 }
 
 func Execute() {
-	utils.CheckErr(rootCmd.Execute())
+	if err := rootCmd.Execute(); err != nil {
+		// cobra already prints the error
+	}
 }
 
 func init() {
+	rootCmd.AddCommand(cd.RootCmd)
+	rootCmd.AddCommand(find.RootCmd)
+	rootCmd.AddCommand(music.RootCmd)
+	rootCmd.AddCommand(todo.RootCmd)
+	rootCmd.AddCommand(zip.RootCmd)
 	rootCmd.PersistentFlags().BoolVar(&exec.DryRun, "dry-run", false, "print the command that would be executed instead of executing it")
 }
