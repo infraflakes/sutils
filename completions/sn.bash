@@ -1,6 +1,6 @@
-# bash completion V2 for srn                                  -*- shell-script -*-
+# bash completion V2 for sn                                   -*- shell-script -*-
 
-__srn_debug()
+__sn_debug()
 {
     if [[ -n ${BASH_COMP_DEBUG_FILE-} ]]; then
         echo "$*" >> "${BASH_COMP_DEBUG_FILE}"
@@ -9,41 +9,41 @@ __srn_debug()
 
 # Macs have bash3 for which the bash-completion package doesn't include
 # _init_completion. This is a minimal version of that function.
-__srn_init_completion()
+__sn_init_completion()
 {
     COMPREPLY=()
     _get_comp_words_by_ref "$@" cur prev words cword
 }
 
-# This function calls the srn program to obtain the completion
+# This function calls the sn program to obtain the completion
 # results and the directive.  It fills the 'out' and 'directive' vars.
-__srn_get_completion_results() {
+__sn_get_completion_results() {
     local requestComp lastParam lastChar args
 
     # Prepare the command to request completions for the program.
-    # Calling ${words[0]} instead of directly srn allows handling aliases
+    # Calling ${words[0]} instead of directly sn allows handling aliases
     args=("${words[@]:1}")
     requestComp="${words[0]} __complete ${args[*]}"
 
     lastParam=${words[$((${#words[@]}-1))]}
     lastChar=${lastParam:$((${#lastParam}-1)):1}
-    __srn_debug "lastParam ${lastParam}, lastChar ${lastChar}"
+    __sn_debug "lastParam ${lastParam}, lastChar ${lastChar}"
 
     if [[ -z ${cur} && ${lastChar} != = ]]; then
         # If the last parameter is complete (there is a space following it)
         # We add an extra empty parameter so we can indicate this to the go method.
-        __srn_debug "Adding extra empty parameter"
+        __sn_debug "Adding extra empty parameter"
         requestComp="${requestComp} ''"
     fi
 
-    # When completing a flag with an = (e.g., srn -n=<TAB>)
+    # When completing a flag with an = (e.g., sn -n=<TAB>)
     # bash focuses on the part after the =, so we need to remove
     # the flag part from $cur
     if [[ ${cur} == -*=* ]]; then
         cur="${cur#*=}"
     fi
 
-    __srn_debug "Calling ${requestComp}"
+    __sn_debug "Calling ${requestComp}"
     # Use eval to handle any environment variables and such
     out=$(eval "${requestComp}" 2>/dev/null)
 
@@ -55,11 +55,11 @@ __srn_get_completion_results() {
         # There is not directive specified
         directive=0
     fi
-    __srn_debug "The completion directive is: ${directive}"
-    __srn_debug "The completions are: ${out}"
+    __sn_debug "The completion directive is: ${directive}"
+    __sn_debug "The completions are: ${out}"
 }
 
-__srn_process_completion_results() {
+__sn_process_completion_results() {
     local shellCompDirectiveError=1
     local shellCompDirectiveNoSpace=2
     local shellCompDirectiveNoFileComp=4
@@ -69,36 +69,36 @@ __srn_process_completion_results() {
 
     if (((directive & shellCompDirectiveError) != 0)); then
         # Error code.  No completion.
-        __srn_debug "Received error from custom completion go code"
+        __sn_debug "Received error from custom completion go code"
         return
     else
         if (((directive & shellCompDirectiveNoSpace) != 0)); then
             if [[ $(type -t compopt) == builtin ]]; then
-                __srn_debug "Activating no space"
+                __sn_debug "Activating no space"
                 compopt -o nospace
             else
-                __srn_debug "No space directive not supported in this version of bash"
+                __sn_debug "No space directive not supported in this version of bash"
             fi
         fi
         if (((directive & shellCompDirectiveKeepOrder) != 0)); then
             if [[ $(type -t compopt) == builtin ]]; then
                 # no sort isn't supported for bash less than < 4.4
                 if [[ ${BASH_VERSINFO[0]} -lt 4 || ( ${BASH_VERSINFO[0]} -eq 4 && ${BASH_VERSINFO[1]} -lt 4 ) ]]; then
-                    __srn_debug "No sort directive not supported in this version of bash"
+                    __sn_debug "No sort directive not supported in this version of bash"
                 else
-                    __srn_debug "Activating keep order"
+                    __sn_debug "Activating keep order"
                     compopt -o nosort
                 fi
             else
-                __srn_debug "No sort directive not supported in this version of bash"
+                __sn_debug "No sort directive not supported in this version of bash"
             fi
         fi
         if (((directive & shellCompDirectiveNoFileComp) != 0)); then
             if [[ $(type -t compopt) == builtin ]]; then
-                __srn_debug "Activating no file completion"
+                __sn_debug "Activating no file completion"
                 compopt +o default
             else
-                __srn_debug "No file completion directive not supported in this version of bash"
+                __sn_debug "No file completion directive not supported in this version of bash"
             fi
         fi
     fi
@@ -106,7 +106,7 @@ __srn_process_completion_results() {
     # Separate activeHelp from normal completions
     local completions=()
     local activeHelp=()
-    __srn_extract_activeHelp
+    __sn_extract_activeHelp
 
     if (((directive & shellCompDirectiveFilterFileExt) != 0)); then
         # File extension filtering
@@ -119,7 +119,7 @@ __srn_process_completion_results() {
         done
 
         filteringCmd="_filedir $fullFilter"
-        __srn_debug "File filtering command: $filteringCmd"
+        __sn_debug "File filtering command: $filteringCmd"
         $filteringCmd
     elif (((directive & shellCompDirectiveFilterDirs) != 0)); then
         # File completion for directories only
@@ -127,24 +127,24 @@ __srn_process_completion_results() {
         local subdir
         subdir=${completions[0]}
         if [[ -n $subdir ]]; then
-            __srn_debug "Listing directories in $subdir"
+            __sn_debug "Listing directories in $subdir"
             pushd "$subdir" >/dev/null 2>&1 && _filedir -d && popd >/dev/null 2>&1 || return
         else
-            __srn_debug "Listing directories in ."
+            __sn_debug "Listing directories in ."
             _filedir -d
         fi
     else
-        __srn_handle_completion_types
+        __sn_handle_completion_types
     fi
 
-    __srn_handle_special_char "$cur" :
-    __srn_handle_special_char "$cur" =
+    __sn_handle_special_char "$cur" :
+    __sn_handle_special_char "$cur" =
 
     # Print the activeHelp statements before we finish
-    __srn_handle_activeHelp
+    __sn_handle_activeHelp
 }
 
-__srn_handle_activeHelp() {
+__sn_handle_activeHelp() {
     # Print the activeHelp statements
     if ((${#activeHelp[*]} != 0)); then
         if [ -z $COMP_TYPE ]; then
@@ -152,7 +152,7 @@ __srn_handle_activeHelp() {
             printf "\n";
             printf "%s\n" "${activeHelp[@]}"
             printf "\n"
-            __srn_reprint_commandLine
+            __sn_reprint_commandLine
             return
         fi
 
@@ -169,7 +169,7 @@ __srn_handle_activeHelp() {
                 # To find out, we actually trigger the file completion ourselves;
                 # the call to _filedir will fill COMPREPLY if files match.
                 if (((directive & shellCompDirectiveNoFileComp) == 0)); then
-                    __srn_debug "Listing files"
+                    __sn_debug "Listing files"
                     _filedir
                 fi
             fi
@@ -183,7 +183,7 @@ __srn_handle_activeHelp() {
                 # When there are no completion choices at all, we need
                 # to re-print the command-line since the shell will
                 # not be doing it itself.
-                __srn_reprint_commandLine
+                __sn_reprint_commandLine
             fi
         elif [ $COMP_TYPE -eq 37 ] || [ $COMP_TYPE -eq 42 ]; then
             # For completion type: menu-complete/menu-complete-backward and insert-completions
@@ -192,12 +192,12 @@ __srn_handle_activeHelp() {
             printf "\n"
             printf "%s\n" "${activeHelp[@]}"
 
-            __srn_reprint_commandLine
+            __sn_reprint_commandLine
         fi
     fi
 }
 
-__srn_reprint_commandLine() {
+__sn_reprint_commandLine() {
     # The prompt format is only available from bash 4.4.
     # We test if it is available before using it.
     if (x=${PS1@P}) 2> /dev/null; then
@@ -211,7 +211,7 @@ __srn_reprint_commandLine() {
 
 # Separate activeHelp lines from real completions.
 # Fills the $activeHelp and $completions arrays.
-__srn_extract_activeHelp() {
+__sn_extract_activeHelp() {
     local activeHelpMarker="_activeHelp_ "
     local endIndex=${#activeHelpMarker}
 
@@ -220,7 +220,7 @@ __srn_extract_activeHelp() {
 
         if [[ ${comp:0:endIndex} == $activeHelpMarker ]]; then
             comp=${comp:endIndex}
-            __srn_debug "ActiveHelp found: $comp"
+            __sn_debug "ActiveHelp found: $comp"
             if [[ -n $comp ]]; then
                 activeHelp+=("$comp")
             fi
@@ -231,8 +231,8 @@ __srn_extract_activeHelp() {
     done <<<"${out}"
 }
 
-__srn_handle_completion_types() {
-    __srn_debug "__srn_handle_completion_types: COMP_TYPE is $COMP_TYPE"
+__sn_handle_completion_types() {
+    __sn_debug "__sn_handle_completion_types: COMP_TYPE is $COMP_TYPE"
 
     case $COMP_TYPE in
     37|42)
@@ -259,12 +259,12 @@ __srn_handle_completion_types() {
 
     *)
         # Type: complete (normal completion)
-        __srn_handle_standard_completion_case
+        __sn_handle_standard_completion_case
         ;;
     esac
 }
 
-__srn_handle_standard_completion_case() {
+__sn_handle_standard_completion_case() {
     local tab=$'\t'
 
     # If there are no completions, we don't need to do anything
@@ -320,16 +320,16 @@ __srn_handle_standard_completion_case() {
 
     # If there is a single completion left, remove the description text and escape any special characters
     if ((${#COMPREPLY[*]} == 1)); then
-        __srn_debug "COMPREPLY[0]: ${COMPREPLY[0]}"
+        __sn_debug "COMPREPLY[0]: ${COMPREPLY[0]}"
         COMPREPLY[0]=$(printf "%q" "${COMPREPLY[0]%%$tab*}")
-        __srn_debug "Removed description from single completion, which is now: ${COMPREPLY[0]}"
+        __sn_debug "Removed description from single completion, which is now: ${COMPREPLY[0]}"
     else
         # Format the descriptions
-        __srn_format_comp_descriptions $longest
+        __sn_format_comp_descriptions $longest
     fi
 }
 
-__srn_handle_special_char()
+__sn_handle_special_char()
 {
     local comp="$1"
     local char=$2
@@ -342,7 +342,7 @@ __srn_handle_special_char()
     fi
 }
 
-__srn_format_comp_descriptions()
+__sn_format_comp_descriptions()
 {
     local tab=$'\t'
     local comp desc maxdesclength
@@ -353,7 +353,7 @@ __srn_format_comp_descriptions()
         comp=${COMPREPLY[ci]}
         # Properly format the description string which follows a tab character if there is one
         if [[ "$comp" == *$tab* ]]; then
-            __srn_debug "Original comp: $comp"
+            __sn_debug "Original comp: $comp"
             desc=${comp#*$tab}
             comp=${comp%%$tab*}
 
@@ -383,12 +383,12 @@ __srn_format_comp_descriptions()
                 comp+="  ($desc)"
             fi
             COMPREPLY[ci]=$comp
-            __srn_debug "Final comp: $comp"
+            __sn_debug "Final comp: $comp"
         fi
     done
 }
 
-__start_srn()
+__start_sn()
 {
     local cur prev words cword split
 
@@ -399,28 +399,28 @@ __start_srn()
     if declare -F _init_completion >/dev/null 2>&1; then
         _init_completion -n =: || return
     else
-        __srn_init_completion -n =: || return
+        __sn_init_completion -n =: || return
     fi
 
-    __srn_debug
-    __srn_debug "========= starting completion logic =========="
-    __srn_debug "cur is ${cur}, words[*] is ${words[*]}, #words[@] is ${#words[@]}, cword is $cword"
+    __sn_debug
+    __sn_debug "========= starting completion logic =========="
+    __sn_debug "cur is ${cur}, words[*] is ${words[*]}, #words[@] is ${#words[@]}, cword is $cword"
 
     # The user could have moved the cursor backwards on the command-line.
     # We need to trigger completion from the $cword location, so we need
     # to truncate the command-line ($words) up to the $cword location.
     words=("${words[@]:0:$cword+1}")
-    __srn_debug "Truncated words[*]: ${words[*]},"
+    __sn_debug "Truncated words[*]: ${words[*]},"
 
     local out directive
-    __srn_get_completion_results
-    __srn_process_completion_results
+    __sn_get_completion_results
+    __sn_process_completion_results
 }
 
 if [[ $(type -t compopt) = "builtin" ]]; then
-    complete -o default -F __start_srn srn
+    complete -o default -F __start_sn sn
 else
-    complete -o default -o nospace -F __start_srn srn
+    complete -o default -o nospace -F __start_sn sn
 fi
 
 # ex: ts=4 sw=4 et filetype=sh

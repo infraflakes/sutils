@@ -3,6 +3,4 @@ result
 *.drv
 *.nix.d/
 *.log
-conversion_errors.log
-srn
-.venv/
+bin
