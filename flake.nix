@@ -3,76 +3,85 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
+    flake-parts.url = "github:hercules-ci/flake-parts";
   };
 
-  outputs = {
+  outputs = inputs @ {
     self,
     nixpkgs,
-    flake-utils,
+    flake-parts,
     ...
   }:
-    flake-utils.lib.eachDefaultSystem (
-      system: let
-        pkgs = nixpkgs.legacyPackages.${system};
+    flake-parts.lib.mkFlake {inherit inputs;} {
+      systems = ["x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin"];
 
-        buildSutils = {
-          src,
-          version,
-        }:
-          pkgs.buildGoModule {
-            pname = "sutils";
-            inherit version src;
-            preBuild = ''
-              export CGO_ENABLED=0
-            '';
-            vendorHash = "sha256-G/kRteKbu1TsvEYAvAGBRMLhYLUEY4ham/PV9eJKvLs=";
-            ldflags = [
-              "-s"
-              "-w"
-              "-X main.version=${version}"
-            ];
-            nativeBuildInputs = [pkgs.installShellFiles];
-            postInstall = ''
-              mv $out/bin/sutils $out/bin/sn
-            '';
-            postFixup = ''
-              installShellCompletion --fish ${src}/completions/sn.fish
-              installShellCompletion --zsh ${src}/completions/sn.zsh
-              installShellCompletion --bash ${src}/completions/sn.bash
-            '';
-          };
+      perSystem = {
+        config,
+        pkgs,
+        lib,
+        system,
+        ...
+      }: let
+        # Read the version safely, stripping trailing newlines common in version files
+        version = let
+          versionFile = ./. + "/.version";
+        in
+          if builtins.pathExists versionFile
+          then lib.strings.trim (builtins.readFile versionFile)
+          else self.shortRev or "dev";
 
-        cleanedSource = pkgs.lib.cleanSourceWith {
+        # Clean source to ensure we include hidden version files but filter out junk
+        cleanedSource = lib.cleanSourceWith {
           src = ./.;
           filter = path: type: let
             baseName = baseNameOf path;
           in
-            baseName == ".version" || pkgs.lib.cleanSourceFilter path type;
+            baseName == ".version" || lib.cleanSourceFilter path type;
         };
       in {
+        # Define your package build directly inside perSystem
+        packages.default = pkgs.buildGoModule {
+          pname = "sutils";
+          inherit version;
+          src = cleanedSource;
+
+          vendorHash = "sha256-G/kRteKbu1TsvEYAvAGBRMLhYLUEY4ham/PV9eJKvLs=";
+
+          env.CGO_ENABLED = "0";
+
+          ldflags = [
+            "-s"
+            "-w"
+            "-X main.version=${version}"
+          ];
+
+          nativeBuildInputs = [pkgs.installShellFiles];
+
+          postInstall = ''
+            mv $out/bin/sutils $out/bin/sn
+          '';
+
+          postFixup = ''
+            installShellCompletion --fish ${cleanedSource}/completions/sn.fish
+            installShellCompletion --zsh ${cleanedSource}/completions/sn.zsh
+            installShellCompletion --bash ${cleanedSource}/completions/sn.bash
+          '';
+        };
+
+        # Standard interactive shell for developers working on the source
         devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [
+          nativeBuildInputs = with pkgs; [
             go
             golangci-lint
-            cmake
             goreleaser
           ];
-        };
 
-        packages.default = buildSutils {
-          src = cleanedSource;
-          version = let
-            versionFile = "${cleanedSource}/.version";
-          in
-            pkgs.lib.escapeShellArg (
-              if builtins.pathExists versionFile
-              then builtins.readFile versionFile
-              else self.shortRev or "dev"
-            );
+          shellHook = ''
+            export GOPATH="$XDG_DATA_HOME/go"
+            export GOBIN="$XDG_DATA_HOME/go/bin"
+            export PATH="$PATH:$GOBIN"
+          '';
         };
-
-        apps.default = flake-utils.lib.mkApp {drv = self.packages.${system}.default;};
-      }
-    );
+      };
+    };
 }

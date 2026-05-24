@@ -2,53 +2,54 @@ package todo
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
 )
 
 var (
-	baseStyle = lipgloss.NewStyle().
+	renderer = lipgloss.NewRenderer(os.Stderr)
+
+	baseStyle = renderer.NewStyle().
 			PaddingLeft(1).
 			PaddingRight(1)
 
-	titleStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#FFFDF5")).
-			Background(lipgloss.Color("#25A065")).
-			Padding(0, 1).
-			Bold(true)
+	titleStyle = renderer.NewStyle().
+			Bold(true).
+			Reverse(true).
+			Padding(0, 1)
 
-	taskStyle = lipgloss.NewStyle().
+	taskStyle = renderer.NewStyle().
 			PaddingLeft(2)
 
-	selectedTaskStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#EE6FF8")).
-				Background(lipgloss.Color("#313244")).
+	selectedTaskStyle = renderer.NewStyle().
+				Bold(true).
+				Reverse(true).
 				PaddingLeft(2)
 
-	completedTaskStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#A6E3A1")).
+	completedTaskStyle = renderer.NewStyle().
+				Faint(true).
 				Strikethrough(true)
 
-	highPriorityStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#F38BA8"))
+	highPriorityStyle = renderer.NewStyle().
+				Bold(true)
 
-	mediumPriorityStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#FAB387"))
+	mediumPriorityStyle = renderer.NewStyle()
 
-	lowPriorityStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#F9E2AF"))
+	lowPriorityStyle = renderer.NewStyle().
+				Faint(true)
 
-	contextStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#89B4FA")).
-			Bold(true)
+	contextStyle = renderer.NewStyle().
+			Bold(true).
+			Underline(true)
 
-	errorStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#F38BA8")).
-			Bold(true)
+	errorStyle = renderer.NewStyle().
+			Bold(true).
+			Reverse(true)
 
-	inputStyle = lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
+	inputStyle = renderer.NewStyle().
+			Border(lipgloss.NormalBorder()).
 			Padding(1).
 			Margin(1)
 )
@@ -75,9 +76,8 @@ func (m Model) View() string {
 }
 
 func (m Model) renderFullHelpView() string {
-	helpBoxStyle := lipgloss.NewStyle().
+	helpBoxStyle := renderer.NewStyle().
 		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color("#89B4FA")).
 		Padding(1, 2)
 
 	m.Help.ShowAll = true
@@ -153,7 +153,7 @@ func (m Model) RenderTask(task Task, selected, moving bool) string {
 	}
 
 	if selected {
-		style = style.Background(lipgloss.Color("#313244"))
+		style = style.Reverse(true).Bold(true)
 	}
 
 	if moving {
