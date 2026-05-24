@@ -1,6 +1,7 @@
 package alias
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 )
@@ -14,8 +15,12 @@ func FindPathByAlias(target string) (string, bool, error) {
 	return path, ok, nil
 }
 func Priority(target string) (string, error) {
-	if info, err := os.Stat(target); err == nil && info.IsDir() {
-		return filepath.Abs(target)
+	if info, err := os.Stat(target); err == nil {
+		if info.IsDir() {
+			return filepath.Abs(target)
+		}
+	} else if !errors.Is(err, os.ErrNotExist) {
+		return "", err
 	}
 	if path, ok, err := FindPathByAlias(target); err != nil {
 		return "", err
