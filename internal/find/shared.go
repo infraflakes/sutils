@@ -12,7 +12,12 @@ func parseTermsPath(args []string) (terms []string, path string) {
 	if len(args) == 1 {
 		return args, "."
 	}
-	return args[:len(args)-1], args[len(args)-1]
+	last := args[len(args)-1]
+	if _, err := os.Stat(last); err == nil {
+		return args[:len(args)-1], last
+	}
+
+	return args, "."
 }
 
 func DeletePath(path string, isDir bool) {

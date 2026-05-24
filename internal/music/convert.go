@@ -34,8 +34,8 @@ var convertMp3Cmd = &cobra.Command{
 		defer fs.CloseFile(logFile)
 
 		for _, dir := range args {
-			fmt.Printf("--- Processing directory: %s ---", dir)
-			_ = filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+			fmt.Printf("--- Processing directory: %s ---\n", dir)
+			if err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 				if err != nil {
 					return err
 				}
@@ -87,7 +87,10 @@ var convertMp3Cmd = &cobra.Command{
 					}
 				}
 				return nil
-			})
+			}); err != nil {
+				fs.LogError(logFile, fmt.Sprintf("Walk error for %s: %v\n", dir, err))
+				fmt.Printf("Walk error for %s: %v\n", dir, err)
+			}
 		}
 
 		fmt.Println("\nAll done! Check conversion_errors.log for any errors.")
@@ -111,6 +114,11 @@ var convertPlaylistCmd = &cobra.Command{
 			scanner := bufio.NewScanner(f)
 			for scanner.Scan() {
 				lines = append(lines, scanner.Text())
+			}
+			if err := scanner.Err(); err != nil {
+				fs.CloseFile(f)
+				fmt.Printf("Skipping %s due to read error: %v\n", playlist, err)
+				continue
 			}
 			fs.CloseFile(f)
 

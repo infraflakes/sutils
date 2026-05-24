@@ -8,6 +8,7 @@ import (
 	"github.com/infraflakes/sutils/cmd/zip"
 	"github.com/infraflakes/sutils/internal/helper/exec"
 	"github.com/spf13/cobra"
+	"os"
 )
 
 var rootCmd = &cobra.Command{
@@ -20,7 +21,9 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute() {
-	_ = rootCmd.Execute()
+	if err := rootCmd.Execute(); err != nil {
+		os.Exit(1)
+	}
 }
 
 func init() {
@@ -28,6 +31,7 @@ func init() {
 	rootCmd.AddCommand(find.RootCmd)
 	rootCmd.AddCommand(music.RootCmd)
 	rootCmd.AddCommand(todo.RootCmd)
-	rootCmd.AddCommand(zip.RootCmd)
+	rootCmd.AddCommand(zip.ZipCmd)
+	rootCmd.AddCommand(zip.UnzipCmd)
 	rootCmd.PersistentFlags().BoolVar(&exec.DryRun, "dry-run", false, "print the command that would be executed instead of executing it")
 }

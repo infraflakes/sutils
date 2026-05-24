@@ -2,7 +2,9 @@ package cli
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 )
@@ -12,6 +14,9 @@ func Confirm(prompt string) bool {
 	reader := bufio.NewReader(os.Stdin)
 	response, err := reader.ReadString('\n')
 	if err != nil {
+		if errors.Is(err, io.EOF) && strings.TrimSpace(response) != "" {
+			return strings.ToLower(strings.TrimSpace(response)) == "y"
+		}
 		fmt.Printf("Failed to read input: %v\n", err)
 		return false
 	}
@@ -23,6 +28,9 @@ func GetInput(prompt string) string {
 	reader := bufio.NewReader(os.Stdin)
 	input, err := reader.ReadString('\n')
 	if err != nil {
+		if errors.Is(err, io.EOF) && strings.TrimSpace(input) != "" {
+			return strings.TrimSpace(input)
+		}
 		fmt.Printf("Failed to read input: %v\n", err)
 		return ""
 	}

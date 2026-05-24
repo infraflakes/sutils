@@ -282,11 +282,13 @@ func (m Model) UpdateNormalView(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	case key.Matches(msg, m.KeyMap.Move):
 		if len(m.GetFilteredTasks()) > 0 {
+			if !m.MovingMode {
+				m.SaveStateForUndo() // snapshot before any reordering
+			}
 			m.MovingMode = !m.MovingMode
 			if m.MovingMode {
 				m.MovingTaskID = m.GetCurrentTask().ID
 			} else {
-				m.SaveStateForUndo()
 				m.SaveConfig()
 			}
 		}

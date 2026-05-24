@@ -12,10 +12,19 @@ import (
 func Initialize(configFilePath string) Model {
 	var finalPath string
 	if configFilePath != "" {
-		finalPath, _ = filepath.Abs(configFilePath)
+		absPath, err := filepath.Abs(configFilePath)
+		if err != nil {
+			finalPath = configFilePath
+		} else {
+			finalPath = absPath
+		}
 	} else {
-		homeDir, _ := os.UserHomeDir()
-		finalPath = filepath.Join(homeDir, ".cache", "sutils", "todo", "note.json")
+		homeDir, err := os.UserHomeDir()
+		if err != nil || homeDir == "" {
+			finalPath = filepath.Join(".", ".cache", "sutils", "todo", "note.json")
+		} else {
+			finalPath = filepath.Join(homeDir, ".cache", "sutils", "todo", "note.json")
+		}
 	}
 
 	ti := textinput.New()

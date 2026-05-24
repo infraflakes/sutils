@@ -5,6 +5,7 @@ VERSION ?= $(shell git describe --tags --always --dirty --first-parent 2>/dev/nu
 all: build
 
 build:
+	mkdir -p bin
 	go build -ldflags="-s -w -X main.version=$(VERSION)" -o bin/sn .
 
 run:
@@ -20,5 +21,5 @@ lint:
 
 clean:
 	go clean
-	rm -f sn
+	rm -f bin/sn
 	rm -rf result

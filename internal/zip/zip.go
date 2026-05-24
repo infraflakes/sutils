@@ -2,9 +2,10 @@ package zip
 
 import (
 	"fmt"
+	"os"
 
-	"github.com/infraflakes/sutils/internal/helper/cli"
 	"github.com/spf13/cobra"
+	"golang.org/x/term"
 )
 
 var ZipCmd = &cobra.Command{
@@ -25,7 +26,14 @@ var zipPasswordCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		archiveName := args[0]
 		targets := ExpandTargets(args[1:])
-		password := cli.GetInput("Enter archive password: ")
+		fmt.Print("Enter archive password: ")
+		bytePassword, err := term.ReadPassword(int(os.Stdin.Fd()))
+		fmt.Println()
+		if err != nil {
+			fmt.Println("Failed to read password:", err)
+			return
+		}
+		password := string(bytePassword)
 		if password == "" {
 			fmt.Println("Password cannot be empty.")
 			return

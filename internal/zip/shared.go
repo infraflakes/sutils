@@ -1,8 +1,10 @@
 package zip
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/infraflakes/sutils/internal/helper/exec"
 	"github.com/infraflakes/sutils/internal/helper/utils"
@@ -33,14 +35,22 @@ func BuildArchiveCommand(archiveName string, targets []string, password string) 
 	cmdArgs = append(cmdArgs, archiveName)
 	cmdArgs = append(cmdArgs, targets...)
 
-	utils.CheckErr(exec.ExecuteCommand("7z", cmdArgs...))
+	utils.CheckErr(run7z(cmdArgs, password))
 }
 
 func BuildExtractCommand(target string, password string) {
-	cmdArgs := []string{"x"}
+	cmdArgs := []string{"x", "-aoa"}
 	if password != "" {
 		cmdArgs = append(cmdArgs, "-p"+password)
 	}
 	cmdArgs = append(cmdArgs, target)
-	utils.CheckErr(exec.ExecuteCommand("7z", cmdArgs...))
+	utils.CheckErr(run7z(cmdArgs, password))
+}
+
+func run7z(args []string, password string) error {
+	err := exec.ExecuteCommand("7z", args...)
+	if err != nil && password != "" {
+		return fmt.Errorf("%s", strings.ReplaceAll(err.Error(), "-p"+password, "-p***"))
+	}
+	return err
 }

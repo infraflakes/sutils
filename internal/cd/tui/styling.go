@@ -20,7 +20,7 @@ var (
 			Bold(true).
 			Reverse(true)
 
-	// DimStyle drops the intensity slightly if the terminal supports faint, 
+	// DimStyle drops the intensity slightly if the terminal supports faint,
 	// otherwise defaults gracefully to standard foreground
 	DimStyle = Renderer.NewStyle().
 			Faint(true)
@@ -50,6 +50,6 @@ var (
 			Padding(0, 1)
 
 	CurrentColumnStyle = Renderer.NewStyle().
-			Border(lipgloss.DoubleBorder(), false, true, false, true).
-			Padding(0, 1)
+				Border(lipgloss.DoubleBorder(), false, true, false, true).
+				Padding(0, 1)
 )

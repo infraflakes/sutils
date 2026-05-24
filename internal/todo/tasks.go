@@ -332,7 +332,14 @@ func (m *Model) RemoveTagsFromCurrentTask() {
 }
 
 func (m *Model) SaveStateForUndo() {
-	stateCopy := slices.Clone(m.Tasks)
+	stateCopy := make([]Task, len(m.Tasks))
+	for i, t := range m.Tasks {
+		copied := t
+		if t.Tags != nil {
+			copied.Tags = slices.Clone(t.Tags)
+		}
+		stateCopy[i] = copied
+	}
 	m.History = append(m.History, stateCopy)
 	if len(m.History) > m.MaxHistory {
 		m.History = m.History[1:]

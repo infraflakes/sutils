@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	cdalias "github.com/infraflakes/sutils/internal/cd/alias"
 	cdinit "github.com/infraflakes/sutils/internal/cd"
+	cdalias "github.com/infraflakes/sutils/internal/cd/alias"
 	cdtui "github.com/infraflakes/sutils/internal/cd/tui"
 	"github.com/spf13/cobra"
 )

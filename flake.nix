@@ -77,8 +77,8 @@
           ];
 
           shellHook = ''
-            export GOPATH="$XDG_DATA_HOME/go"
-            export GOBIN="$XDG_DATA_HOME/go/bin"
+            export GOPATH="$HOME/.local/share/go"
+            export GOBIN="$GOPATH/bin"
             export PATH="$PATH:$GOBIN"
           '';
         };

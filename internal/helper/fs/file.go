@@ -24,12 +24,20 @@ func OpenFile(path string) (*os.File, error) {
 }
 
 func CloseFile(file *os.File) {
+	if file == nil {
+		fmt.Println("Error closing file: nil file handle")
+		return
+	}
 	if err := file.Close(); err != nil {
 		fmt.Println("Error closing file:", err)
 	}
 }
 
 func LogError(file *os.File, message string) {
+	if file == nil {
+		fmt.Println("Error writing to log file: nil file handle")
+		return
+	}
 	if _, err := fmt.Fprintln(file, message); err != nil {
 		fmt.Println("Error writing to log file:", err)
 	}
