@@ -41,6 +41,12 @@ For users not using Nix, the CLI can be downloaded as a single executable binary
     ```bash
     sudo mv sn /usr/local/bin/
     ```
+4. **Or if you want quick script:**
+    ```bash
+    curl -fsSL https://raw.githubusercontent.com/infraflakes/sutils/main/install.sh -o install.sh
+    chmod +x install.sh
+    ./install.sh
+    ```
 
 ### Manual Installation (from source)
 
